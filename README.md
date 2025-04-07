@@ -44,3 +44,5 @@ Per avviare il progetto in locale, la prima cosa da fare è clonare il repositor
 
 ```bash
 git clone https://github.com/AleRaunisi/TAAS-Activity.git
+
+eseguire ./deploy

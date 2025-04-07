@@ -63,9 +63,8 @@ services:
 
   notification-service:
     build: ./notification-service
-    environment:
-      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
-      - CHAT_ID=${CHAT_ID}
+    env_file:
+      - .env
     depends_on:
       rabbitmq:
         condition: service_healthy
