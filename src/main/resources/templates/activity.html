@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dettaglio Attività</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const activityId = urlParams.get("id");
+
+            // Chiamata API per ottenere i dettagli dell'attività
+            fetch(`/api/attivita/${activityId}`)
+                .then(response => response.json())
+                .then(activity => {
+                    if (!activity) throw new Error("Dati attività mancanti");
+
+                    // Popola i dettagli dell'attività nella pagina
+                    const titleEl = document.getElementById("activity-title");
+                    const descEl = document.getElementById("activity-description");
+                    const locationEl = document.getElementById("activity-location");
+                    const dateEl = document.getElementById("activity-date");
+                    const availableSpotsEl = document.getElementById("activity-availablespots");
+                    const totalSpotsEl = document.getElementById("activity-totalspots");
+                    const imageEl = document.getElementById("activity-image");
+                    const idEl = document.getElementById("activity-id");
+
+                    if (titleEl) titleEl.textContent = activity.titolo;
+                    if (descEl) descEl.textContent = activity.descrizione;
+                    if (locationEl) locationEl.textContent = activity.luogo;
+                    if (dateEl) dateEl.textContent = new Date(activity.dataInizio).toLocaleString();
+                    if (availableSpotsEl) availableSpotsEl.innerText = activity.availableSpots;
+                    if (totalSpotsEl) totalSpotsEl.innerText = activity.totalSpots;
+                    if (imageEl) imageEl.src = `/images/${activity.image}`;
+                    if (idEl) idEl.value = activity.id;
+
+                    // Gestione della prenotazione
+                    const bookButton = document.getElementById("book-button");
+                    bookButton.addEventListener("click", () => {
+                        fetch(`/api/partecipazioni/${activityId}/prenota`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(error => {
+                                    throw new Error(error.message || "Errore durante la prenotazione");
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(updatedActivity => {
+                            document.getElementById("activity-availablespots").innerText = updatedActivity.availableSpots;
+                            const messageDiv = document.getElementById('message');
+                            messageDiv.textContent = "Prenotazione completata!";
+                            messageDiv.style.display = "block";
+                        })
+                        .catch(error => {
+                            const messageDiv = document.getElementById('message');
+                            messageDiv.textContent = error.message || "Errore durante la prenotazione.";
+                            messageDiv.style.color = "red";
+                            messageDiv.style.display = "block";
+                        });
+
+
+                    });
+                })
+                .catch(error => {
+                    console.error("Errore durante il recupero dei dettagli dell'attività:", error);
+                    const detailsEl = document.getElementById("activity-details");
+                    if (detailsEl) {
+                        detailsEl.innerHTML = "<p class='text-red-500'>Errore durante il caricamento dei dettagli dell'attività.</p>";
+                    }
+                });
+        });
+
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white py-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold tracking-tight">Dettaglio Attività</h1>
+            <a href="/user" class="text-sm bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-all">Profilo</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto mt-10 px-4">
+        <section id="activity-details" class="bg-white rounded-lg shadow-xl p-8 mb-10">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Immagine attività -->
+                <div class="lg:w-1/2">
+                    <img id="activity-image" class="w-full h-80 object-cover rounded-lg shadow-lg" src="" alt="Immagine attività">
+                </div>
+
+                <!-- Dettagli attività -->
+                <div class="lg:w-1/2">
+                    <h2 id="activity-title" class="text-3xl font-semibold text-gray-800 mb-4">Titolo Attività</h2>
+                    <p id="activity-description" class="text-gray-600 mb-4">Descrizione attività...</p>
+                    <div class="mb-4">
+                        <p class="text-gray-500">Luogo: <span id="activity-location">Parco della Città</span></p>
+                        <p class="text-gray-500">Data: <span id="activity-date">15 dicembre 2024, 10:00</span></p>
+                        <p class="text-gray-500 mb-4">Posti disponibili: <span id="activity-availablespots">0</span> / <span id="activity-totalspots">0</span></p>
+                    </div>
+
+                    <!-- Pulsante di conferma prenotazione -->
+                    <form action="/booking" method="POST" class="w-full sm:w-auto mt-6">
+                        <input type="hidden" id="activity-id" name="activityId">
+                        <button type="button" id="book-button"  class="w-full bg-blue-500 text-white py-3 px-4 rounded-md hover:bg-blue-600 shadow-md transition-all ease-in-out duration-300">Conferma Prenotazione</button>
+                    </form>
+                    <div id="message" style="display: none; color: green; font-size: 20px; padding: 10px; background-color: #e0ffe0; margin-top: 20px;"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-10 fixed bottom-0 left-0 w-full">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 Gestione Attività. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

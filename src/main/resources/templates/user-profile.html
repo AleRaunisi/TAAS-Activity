@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profilo Utente</title>
+    <link href="/css/styles.css" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+
+</head>
+<body class="bg-gray-100">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white py-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Profilo Utente</h1>
+            <a href="/home" class="bg-gray-300 text-gray-700 text-sm px-4 py-2 rounded-md hover:bg-gray-400 transition">Home</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto mt-6 px-4">
+        <div class="bg-white rounded-xl shadow-lg p-6 max-w-lg mx-auto">
+            <!-- Profile Image & Information -->
+            <div class="flex items-center justify-center mb-6"> <!-- Cambia da space-x-4 a justify-center -->
+                <img th:src="${immagine}" alt="Immagine profilo" class="w-24 h-24 rounded-full shadow-lg">
+            </div>
+    
+            <!-- Card Section for Details -->
+            <div class="space-y-4">
+                <div class="bg-gray-50 p-4 rounded-lg shadow-md">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-500">Nome</span>
+                        <span class="text-sm font-semibold text-gray-700" th:text="${nome}">Nome Utente</span>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg shadow-md">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-500">Email</span>
+                        <span class="text-sm font-semibold text-gray-700" th:text="${email}">email@example.com</span>
+                    </div>
+                </div>
+                <!-- Aggiungi altre informazioni se necessario -->
+            </div>
+        </div>
+
+        <section class="bg-gray-50 p-4 rounded-lg shadow-md mt-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Prenotazioni Effettuate</h2>
+            <div id="bookings-container" class="max-h-96 overflow-y-auto">
+                <p class="text-gray-500" id="no-bookings-message">Nessuna prenotazione trovata.</p>
+                <!-- Prenotazioni aggiunte dinamicamente -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-10 fixed bottom-0 left-0 w-full">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 Gestione Attività. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <script>
+
+document.addEventListener("DOMContentLoaded", () => {
+    const loadUserBookings = () => {
+        const url = '/api/attivita/prenotazioni'; // Endpoint per ottenere le prenotazioni dell'utente
+
+        fetch(url)
+            .then(response => response.json())
+            .then(bookings => {
+                const bookingsContainer = document.getElementById("bookings-container");
+                const noBookingsMessage = document.getElementById("no-bookings-message");
+
+                // Svuota il contenitore delle prenotazioni
+                bookingsContainer.innerHTML = "";
+
+                if (bookings.length === 0) {
+                    noBookingsMessage.style.display = "block";
+                } else {
+                    noBookingsMessage.style.display = "none";
+
+                    bookings.forEach(booking => {
+                        const bookingCard = `
+                            <div class="bg-white p-4 rounded-lg shadow-md mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">${booking.titolo}</h3>
+                                <p class="text-gray-600">Luogo: ${booking.luogo}</p>
+                                <p class="text-gray-600">Data: ${new Date(booking.dataInizio).toISOString().split('T')[0]}</p>
+                                <button onclick="cancelBooking(${booking.id})" 
+                                            class="mt-2 w-full bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition-all">
+                                            Annulla Prenotazione
+                                </button>
+                            </div>
+                        `;
+                        bookingsContainer.innerHTML += bookingCard;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Errore durante il caricamento delle prenotazioni:", error);
+                bookingsContainer.innerHTML = "<p class='text-red-500'>Errore durante il caricamento delle prenotazioni.</p>";
+            });
+    };
+
+    // Chiama la funzione per caricare le prenotazioni
+    loadUserBookings();
+});
+function cancelBooking(activityId) {
+    fetch(`/api/attivita/${activityId}/cancel-booking`, { method: "DELETE" })
+        .then(response => {
+            if (!response.ok) throw new Error("Errore durante l'annullamento della prenotazione.");
+            return response.text();
+        })
+        .then(message => {
+
+            // Find the booking card and remove it from the DOM
+            const bookingCard = document.querySelector(`#booking-${activityId}`);
+            if (bookingCard) {
+                bookingCard.remove();
+            }
+            location.reload();
+        })
+        .catch(error => {
+            alert("Errore: " + error.message);
+        });
+}
+    </script>
+    
+</body>
+</html>

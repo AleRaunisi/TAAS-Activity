@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dettaglio Attività</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-blue-600 text-white py-4 shadow-md shadow-blue-500/50">
+      <div class="container mx-auto flex justify-between items-center">
+          <h1 class="text-3xl font-bold tracking-tight">Dettaglio Attività</h1>
+          <div class="flex items-center space-x-4">
+              <a href="/home" class="text-sm bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-all">Home</a>
+              <a href="/user" class="text-sm bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-all">Profilo</a>
+          </div>
+      </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto mt-10 px-4">
+    <!-- Dettaglio Attività -->
+    <section class="bg-white rounded-lg shadow-lg p-8 mb-10">
+        <h2 class="text-3xl font-semibold text-gray-800 mb-4" id="activity-title">Titolo Attività</h2>
+        <p class="text-gray-600 mb-4" id="activity-description">Descrizione dell'attività...</p>
+        <p class="text-gray-500 mb-4">Luogo: <span id="activity-location">Luogo</span></p>
+        <p class="text-gray-500 mb-4">Data: <span id="activity-date">Data</span></p>
+        <p class="text-gray-500 mb-4">Posti disponibili: <span id="availablespots">0</span> / <span id="totalspots">0</span></p>
+
+        <form id="booking-form">
+            <button 
+                type="submit" 
+                id="book-button"
+                class="w-full sm:w-auto bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 shadow-md transition-all ease-in-out duration-300"
+            >
+                Conferma Prenotazione
+            </button>
+        </form>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-6 mt-10 fixed bottom-0 left-0 w-full">
+      <div class="container mx-auto text-center">
+        <p>&copy; 2024 Gestione Attività. Tutti i diritti riservati.</p>
+      </div>
+  </footer>
+
+  <script>
+    // Recupero dei dati dall'ID dell'attività passato tramite URL
+    const params = new URLSearchParams(window.location.search);
+    const activityId = params.get("id");
+
+    // Esegui una richiesta per ottenere i dettagli dell'attività
+    fetch(`/api/attivita/${activityId}`)
+    .then(response => response.json())
+    .then(activity => {
+        // Popola i dettagli dell'attività
+        document.getElementById("activity-title").innerText = activity.titolo;
+        document.getElementById("activity-description").innerText = activity.descrizione;
+        document.getElementById("activity-location").innerText = activity.luogo;
+        document.getElementById("activity-date").innerText = new Date(activity.dataInizio).toLocaleString();
+
+        // Mostra posti disponibili e totali
+        document.getElementById("activity-availablespots").innerText = activity.availableSpots;
+        document.getElementById("tactivity-totalspots").innerText = activity.totalSpots;
+
+        // Disabilita il pulsante se non ci sono più posti disponibili
+        const bookButton = document.getElementById("book-button");
+        if (activity.postiDisponibili <= 0) {
+            bookButton.disabled = true;
+            bookButton.innerText = "Nessun posto disponibile";
+        }
+
+        // Aggiungi l'ID dell'attività al form di prenotazione per poterlo usare nel backend
+        document.getElementById("booking-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+            
+            // Passa l'ID dell'utente dinamicamente, ad esempio tramite una variabile globale
+            const userId = user.getAttribute("id");  // Sostituisci con l'ID dell'utente autenticato
+            
+            fetch(`/api/attivita/${activityId}/prenota`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: userId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Prenotazione confermata!');
+                location.reload();  // Ricarica la pagina per aggiornare i posti disponibili
+            })
+            .catch(error => {
+                console.error('Errore durante la prenotazione:', error);
+                alert('Si è verificato un errore durante la prenotazione.');
+            });
+        });
+    })
+    .catch(error => {
+        console.error('Errore durante il caricamento dell\'attività:', error);
+        alert('Si è verificato un errore durante il caricamento dei dettagli dell\'attività.');
+    });
+  </script>
+
+</body>
+</html>

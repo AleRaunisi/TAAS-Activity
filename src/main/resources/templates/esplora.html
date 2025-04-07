@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esplora</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-500 to-blue-700 text-white py-4 shadow-xl fixed w-full top-0 left-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold tracking-tight cursor-pointer hover:text-blue-200 transition-colors">Esplora</h1>
+            <nav class="flex items-center space-x-6">
+                <a href="/" class="text-sm hover:text-blue-200 transition-colors">Home</a>
+                <a href="/supporto" class="text-sm hover:text-blue-200 transition-colors">Supporto</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 flex-grow mt-20">
+        <section>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Attività Consigliate</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Attività di esempio -->
+                <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl overflow-hidden transition-all duration-300 transform hover:scale-105">
+                    <img src="/images/activity1.jpg" alt="Attività 1" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Attività Popolare 1</h3>
+                        <p class="text-gray-600 mt-2">Descrizione breve dell'attività popolare.</p>
+                        <button class="mt-4 w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 shadow-md transition-all">Esplora</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl overflow-hidden transition-all duration-300 transform hover:scale-105">
+                    <img src="/images/activity2.jpg" alt="Attività 2" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Attività Consigliata 2</h3>
+                        <p class="text-gray-600 mt-2">Descrizione breve di un'altra attività consigliata.</p>
+                        <button class="mt-4 w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 shadow-md transition-all">Esplora</button>
+                    </div>
+                </div>
+                <!-- Aggiungi altre card dinamicamente -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 Gestione Attività. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

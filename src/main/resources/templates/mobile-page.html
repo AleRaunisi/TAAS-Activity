@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestione Attività</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        if (window.location.pathname !== "/mobile") {
+            window.location.href = "/mobile";
+        }
+    }
+
+  </script>
+  <style>
+    .popup-form {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      max-width: 500px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      display: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Container principale -->
+  <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+    <!-- Header -->
+    <div class="relative">
+      <img src="images/desk.jpg" alt="Landscape" class="w-full h-40 object-cover">
+      <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+      <h1 class="absolute bottom-4 left-4 text-white text-2xl font-bold">Gestione Attività</h1>
+    </div>
+
+    <!-- Contenuto principale -->
+    <div class="p-4">
+      <!-- Barra di ricerca -->
+      <div class="mb-4">
+        <input type="text" id="filter-input" name="keyword" placeholder="Cerca attività..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+      <!-- Bottone per creare attività -->
+      <!-- Bottone per supporto e creare attività -->
+    <div class="flex justify-between mb-4">
+        <button id="create-butto" class="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-all">Crea Nuova Attività</button>
+        <button id="create-button" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-all">Crea Nuova Attività</button>
+    </div>
+
+      <!-- Griglia attività -->
+      <div id="activity-container" class="grid grid-cols-2 gap-4">
+        <!-- Le attività verranno caricate dinamicamente -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Form popup per creare attività -->
+  <section id="create-activity-popup" class="popup-form">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">Crea Nuova Attività</h2>
+    <form id="create-activity-form" class="space-y-4">
+      <input type="text" id="titolo" name="titolo" placeholder="Titolo" required class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      <textarea id="descrizione" name="descrizione" placeholder="Descrizione" required class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
+      <input type="text" id="luogo" name="luogo" placeholder="Luogo" required class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      <input type="number" id="maxPartecipanti" name="maxPartecipanti" placeholder="Numero massimo di partecipanti" required class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      <input type="datetime-local" id="dataInizio" name="dataInizio" required class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      <input type="datetime-local" id="dataFine" name="dataFine" required class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      <input type="text" id="categoria" name="categoria" placeholder="Categoria" required class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      <div id="drop-area" class="border border-dashed p-4 text-center cursor-pointer">
+        <p>Trascina qui un'immagine oppure clicca per selezionarla</p>
+        <input type="file" id="image-input" name="image" accept="image/*" class="hidden">
+        <img id="preview" class="hidden" alt="Anteprima Immagine" />
+      </div>
+      <div class="flex justify-between">
+        <button type="button" id="cancel-button" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">Annulla</button>
+        <button type="submit" id="submit-button" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Crea</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- JavaScript per la gestione -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const loadActivities = (keyword = '') => {
+        const url = `/api/attivita?${new URLSearchParams({ keyword }).toString()}`;
+        fetch(url)
+          .then(response => response.json())
+          .then(activities => {
+            const container = document.getElementById("activity-container");
+            container.innerHTML = activities.length ? activities.map(activity => `
+              <div class="bg-gray-100 rounded-xl overflow-hidden shadow">
+                <img src="/images/${activity.image}" alt="${activity.titolo}" class="w-full h-24 object-cover">
+                <div class="p-2">
+                  <h2 class="text-sm font-semibold">${activity.titolo}</h2>
+                  <p class="text-xs text-gray-500">${activity.categoria}</p>
+                </div>
+              </div>`).join("") : "<p class='text-red-500'>Nessun risultato trovato.</p>";
+          });
+      };
+
+      document.getElementById("filter-input").addEventListener("input", e => loadActivities(e.target.value));
+      loadActivities();
+
+      const popup = document.getElementById("create-activity-popup");
+      document.getElementById("create-button").addEventListener("click", () => popup.style.display = "block");
+      document.getElementById("cancel-button").addEventListener("click", () => popup.style.display = "none");
+    });
+  </script>
+</body>
+</html>

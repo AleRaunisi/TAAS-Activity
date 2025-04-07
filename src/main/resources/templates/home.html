@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Attività</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            if (window.location.pathname !== "/mobile") {
+                window.location.href = "/mobile";
+            }
+        }
+    
+      </script>
+    <style>
+        /* Animazione per il form che appare come una bolla */
+        .popup-form {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: none; /* Inizialmente nascosto */
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-500 to-blue-700 text-white py-4 shadow-xl w-full fixed top-0 left-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold tracking-tight cursor-pointer hover:text-blue-200 transition-colors">Gestione Attività</h1>
+            <div class="flex items-center space-x-6">
+                <a href="/user" class="text-sm bg-gray-300 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 transition-all">Profilo</a>
+                <a href="/supporto2" class="text-sm hover:text-blue-200 transition-colors">Supporto</a>
+                <a href="/logout" class="text-sm bg-red-500 px-6 py-3 rounded-md hover:bg-red-600 transition-all">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto mt-24 px-4 flex-grow"> <!-- Maggiore spazio sopra per evitare sovrapposizione -->
+
+        <!-- Barra di ricerca -->
+        <section class="bg-white rounded-lg shadow-lg p-6 mb-10">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Cerca Attività</h2>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <input type="text" id="filter-input" name="keyword" placeholder="Parola chiave..." class="flex-1 px-6 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all ease-in-out duration-300">
+            </div>
+        </section>
+
+        <!-- Floating Action Button (FAB) per creare attività -->
+        <button id="create-button" class="fixed bottom-8 right-8 bg-blue-500 text-white p-6 rounded-full shadow-lg hover:bg-blue-600 transition-all text-xl w-16 h-16 flex items-center justify-center">
+            +
+        </button>
+
+        <!-- Form di creazione attività (popup) -->
+        <section id="create-activity-popup" class="popup-form">
+            <div id="create-activity-container" class="space-y-4">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Crea Nuova Attività</h2>
+            <form id="create-activity-form" class="space-y-4">
+                <input type="text" id="titolo" name="titolo" placeholder="Titolo" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+                <textarea id="descrizione" name="descrizione" placeholder="Descrizione" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
+                <input type="text" id="luogo" name="luogo" placeholder="Luogo" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+                <input type="number" id="maxPartecipanti" name="maxPartecipanti" placeholder="Numero massimo di partecipanti" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+                <input type="datetime-local" id="dataInizio" name="dataInizio" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+                <input type="datetime-local" id="dataFine" name="dataFine" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="categoria" name="categoria" placeholder="Categoria" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+                <div id="drop-area" class="border border-dashed p-4 text-center cursor-pointer">
+                    <p>Trascina qui un'immagine oppure clicca per selezionarla</p>
+                    <input type="file" id="image-input" name="image" accept="image/*" class="hidden">
+                    <img id="preview" class="hidden" alt="Anteprima Immagine" />
+                </div>
+                <div class="flex justify-between">
+                    <button type="button" id="cancel-button" class="bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600">
+                        Annulla
+                    </button>
+                    <button type="submit" id="submit-button" class="bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600">
+                        Crea Attività
+                    </button>
+                </div>
+            </form>
+            <p id="form-message"></p>
+        </div>
+        </section>
+
+        <!-- Elenco Attività -->
+        <section>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Attività Disponibili</h2>
+            <div id="activity-container" class="max-h-[600px] overflow-y-auto rounded-lg border border-gray-200 shadow-md p-4 bg-white">
+                <div id="activity-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Le attività saranno aggiunte dinamicamente -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-10 w-full">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 Gestione Attività. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript per gestire la ricerca delle attività -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Funzione per caricare le attività in base alla keyword (solo per il titolo)
+            const loadActivities = (keyword = '') => {
+                // Costruire la query string solo se la keyword non è vuota
+                let queryString = "";
+                if (keyword && keyword.trim() !== "") {
+                    queryString = new URLSearchParams({ keyword }).toString();
+                }
+                
+                const url = `/api/attivita?${queryString}`;
+
+                // Chiamata API per ottenere le attività filtrate
+                fetch(url)
+                    .then(response => response.json())
+                    .then(activities => {
+                        const activityGrid = document.getElementById("activity-grid");
+
+                        // Svuota la griglia esistente
+                        activityGrid.innerHTML = "";
+
+                        if (activities.length === 0) {
+                            // Se non ci sono attività che corrispondono, mostra il messaggio
+                            activityGrid.innerHTML = "<p class='text-red-500'>Nessun risultato trovato.</p>";
+                        } else {
+                            // Aggiungi le attività trovate alla griglia
+                            activities.forEach(activity => {
+                            const card = `
+                            <div class="bg-white rounded-lg shadow-lg hover:shadow-2xl overflow-hidden transition-all duration-300 transform hover:scale-105">
+                                <img src="/images/${activity.image}" alt="${activity.titolo}" class="w-full h-48 object-cover">
+                                <div class="p-6">
+                                    <h3 class="text-lg font-semibold text-gray-900">${activity.titolo}</h3>
+                                    <p class="text-gray-600 mt-2 mb-4">${activity.descrizione}</p>
+                                    <p class="text-gray-500">Luogo: ${activity.luogo}</p>
+                                    <p class="text-gray-500">Data: ${new Date(activity.dataInizio).toLocaleString()}</p>
+                                    <p class="text-gray-500">Posti disponibili: ${activity.availableSpots}</p>
+                                    <p class="text-gray-500">Posti totali: ${activity.totalSpots}</p>
+                                    <button onclick="window.location.href='/activity?id=${activity.id}'" 
+                                        class="mt-4 w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 shadow-md transition-all ease-in-out duration-300">
+                                        Partecipa
+                                    </button>
+                                    ${activity.canDelete ? `
+                                        <button onclick="deleteActivity(${activity.id})" 
+                                            class="mt-2 w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all">
+                                            Elimina Attività
+                                        </button>` : ''}
+                                </div>
+                            </div>`;
+                            activityGrid.innerHTML += card;
+                        });
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Errore durante il recupero delle attività:", error);
+                        const activityGrid = document.getElementById("activity-grid");
+                        activityGrid.innerHTML = "<p class='text-red-500'>Errore durante il caricamento delle attività.</p>";
+                    });
+            };
+            // Carica tutte le attività inizialmente
+            loadActivities();
+
+            // Aggiungi evento per la ricerca dinamica (mentre digiti)
+            const filterInput = document.getElementById("filter-input");
+            filterInput.addEventListener("input", (event) => {
+                const keyword = event.target.value.trim(); // Ottieni la parola chiave dal campo di input
+                loadActivities(keyword); // Carica attività filtrate dinamicamente
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("create-activity-form");
+            const submitButton = document.getElementById("submit-button");
+            const imageInput = document.getElementById("image-input");
+            const dropArea = document.getElementById("drop-area");
+            const preview = document.getElementById("preview");
+            const message = document.getElementById("form-message");
+            const popupForm = document.getElementById("create-activity-popup");
+            const createButton = document.getElementById("create-button");
+
+            // Gestione Drag and Drop
+            dropArea.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                dropArea.classList.add("bg-blue-50");
+            });
+
+            dropArea.addEventListener("dragleave", () => {
+                dropArea.classList.remove("bg-blue-50");
+            });
+
+            dropArea.addEventListener("drop", (e) => {
+                e.preventDefault();
+                dropArea.classList.remove("bg-blue-50");
+
+                const file = e.dataTransfer.files[0]; // Ottieni il file trascinato
+                if (file && file.type.startsWith("image/")) {
+                    handleFile(file); // Aggiorna l'anteprima
+                    imageInput.files = e.dataTransfer.files; // Imposta il file nell'input
+                } else {
+                    alert("Per favore, trascina un file immagine valido.");
+                }
+            });
+
+            dropArea.addEventListener("click", () => {
+                imageInput.click();
+            });
+
+            imageInput.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    handleFile(file);
+                }
+            });
+
+            function handleFile(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.classList.remove("hidden");
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // Apri il form come una bolla
+            createButton.addEventListener("click", () => {
+                popupForm.style.display = "block"; // Mostra il form
+            });
+
+            // Invia il form
+            form.addEventListener("submit", (e) => {
+                e.preventDefault();
+                submitButton.disabled = true;
+
+                const formData = new FormData(form);
+                formData.append("image", imageInput.files[0]);
+
+                fetch("/api/attivita", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error("Errore durante la creazione dell'attività");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        message.textContent = "Attività creata con successo!";
+                        message.style.color = "green";
+                        form.reset();
+                        location.reload();
+                    })
+                    .catch((error) => {
+                        message.textContent = error.message || "Errore durante la creazione dell'attività.";
+                        message.style.color = "red";
+                    })
+                    .finally(() => {
+                        submitButton.disabled = false;
+                    });
+            });
+        });
+
+        function cancelBooking(activityId) {
+            fetch(`/api/attivita/${activityId}/cancel-booking`, { method: "DELETE" })
+                .then(response => {
+                    if (!response.ok) throw new Error("Errore durante l'annullamento della prenotazione.");
+                    return response.text();
+                })
+                .then(message => {
+                    location.reload();
+                })
+                .catch(error => {
+                    alert("Errore: " + error.message);
+                });
+        }
+
+            function deleteActivity(activityId) {
+
+                fetch(`/api/attivita/${activityId}`, { method: "DELETE" })
+                    .then(response => {
+                        if (!response.ok) throw new Error("Errore durante l'eliminazione dell'attività.");
+                        return response.text();
+                    })
+                    .then(() => {
+                        location.reload();
+                    })
+                    .catch(error => {
+                        alert("Errore: " + error.message);
+                    });
+            }
+
+            document.getElementById("cancel-button").addEventListener("click", () => {
+                const form = document.getElementById("create-activity-popup");
+                form.style.transition = "opacity 0.3s ease";
+                form.style.opacity = "0";
+                setTimeout(() => {
+                    form.style.display = "none";
+                    location.reload();
+                }, 300); // Dopo 300ms il form è completamente nascosto
+            });
+
+
+    </script>
+
+</body>
+</html>

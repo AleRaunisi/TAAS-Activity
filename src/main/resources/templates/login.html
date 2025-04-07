@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="/css/styles.css" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            window.location.href = "/mobile-page.html"; // URL della versione mobile
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-500 to-green-500 h-screen flex items-center justify-center font-sans">
+    <div class="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Benvenuto!</h1>
+        <p class="text-center text-gray-600 mb-6">Accedi per gestire le tue attività di gruppo</p>
+        
+        <!-- Profilo e immagine -->
+        <div class="flex justify-center mb-4">
+            <img id="profileImage" class="profile-image w-40 h-40 rounded-full" src="/images/Pasted Graphic 5.png" alt="Immagine profilo">
+        </div>
+
+        <!-- Form di Login -->
+        <form action="/login" method="POST" class="space-y-4">
+            <div>
+                <label for="username" class="block text-gray-700 font-medium mb-1">Email</label>
+                <input type="email" id="username" name="username" required 
+                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       placeholder="Inserisci la tua email">
+            </div>
+            <div class="relative">
+                <label for="password" class="block text-gray-700 font-medium mb-1">Password</label>
+                <div class="relative">
+                       <input type="password" id="password" name="password" required 
+                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       placeholder="Inserisci la tua password" oninput="updateImageFromPassword()">
+                       <span id="togglePassword" class="absolute top-1/2 right-4 transform -translate-y-1/2 password-toggle">👁️</span>
+                       
+                </div>
+            </div>
+            <button type="submit" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg shadow-md">
+                Accedi
+            </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="bg-white px-2 text-gray-600">Oppure</span>
+            </div>
+        </div>
+
+        <!-- Login con Google -->
+        <a href="/oauth2/authorization/google" 
+           class="w-full text-center block bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow-md">
+            Accedi con Google
+        </a>
+
+        <!-- Link per la registrazione -->
+        <div class="mt-4 text-center">
+            <a href="/register" class="text-blue-500 hover:underline">Non hai un account? Registrati qui</a>
+        </div>
+    </div>
+
+    <script>
+        // Funzione per cambiare l'immagine in base ai caratteri della password
+        const updateImageFromPassword = () => {
+            const password = document.getElementById('password').value;
+            const imageIndex = password.length % 5; // Usa il numero di caratteri della password per determinare quale immagine mostrare
+
+            // Cambia immagine in base alla lunghezza della password
+            let imageUrl;
+            switch (imageIndex) {
+                case 0:
+                    imageUrl = "/images/Pasted Graphic 5.png";  // Cambia con la tua immagine
+                    break;
+                case 1:
+                    imageUrl = "/images/Pasted Graphic 3.png";  // Cambia con la tua immagine
+                    break;
+                case 2:
+                    imageUrl = "/images/Pasted Graphic 1.png";
+                    break;
+                case 3:
+                    imageUrl = "/images/Pasted Graphic.png";
+                    break;
+                case 4:
+                    imageUrl = "/images/Pasted Graphic 6.png";
+                    break;
+            }
+
+            // Aggiorna l'immagine del profilo
+            document.getElementById('profileImage').src = imageUrl;
+        };
+
+    // Funzione per alternare la visibilità della password
+    document.getElementById('togglePassword').addEventListener('click', () => {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+
+             // Quando clicchi per mostrare la password, cambiamo l'immagine al profilo
+            const defaultImage = "/images/Pasted Graphic 2.png"; // Puoi cambiare questa immagine con una specifica per il caso di visibilità della password
+            document.getElementById('profileImage').src = defaultImage;
+        });
+    </script>
+</body>
+</html>
